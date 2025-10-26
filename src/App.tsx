@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import Chat from './components/Chat';
-import { MenuIcon, AlertTriangleIcon, ClipboardIcon, CheckIcon, TerminalIcon, WindowsIcon, DockerIcon, DesktopIcon } from './components/icons';
+import { MenuIcon, AlertTriangleIcon, ClipboardIcon, CheckIcon, TerminalIcon, DockerIcon, DesktopIcon } from './components/icons';
 import { OllamaService } from './services/ollamaService';
 import type { OllamaModel, ChatMessage, OllamaModelInfo } from './types';
 
@@ -31,7 +31,9 @@ function useLocalStorage<T,>(key: string, initialValue: T): [T, (value: T) => vo
 
 
 const App: React.FC = () => {
-  const [ollamaHost, setOllamaHost] = useLocalStorage<string>('ollamaHost', 'http://localhost:11434');
+  // Get default Ollama host from config or fallback to localhost
+  const defaultOllamaHost = (window as any).APP_CONFIG?.ollamaHost || 'http://localhost:11434';
+  const [ollamaHost, setOllamaHost] = useLocalStorage<string>('ollamaHost', defaultOllamaHost);
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [selectedModel, setSelectedModel] = useLocalStorage<string>('selectedModel', '');
   const [selectedModelInfo, setSelectedModelInfo] = useState<OllamaModelInfo | null>(null);

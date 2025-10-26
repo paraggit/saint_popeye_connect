@@ -128,35 +128,136 @@ The application should now be running at `http://localhost:5173` (or the next av
 
 You can easily deploy this application to a Raspberry Pi to act as a dedicated server. A deployment script is included to automate the entire process.
 
-### Prerequisites for Pi
+### Prerequisites for Remote Deployment
 
-- A Raspberry Pi with Raspberry Pi OS (or another Debian-based Linux distribution).
-- An active internet connection.
-- SSH access or a terminal directly on the Pi.
+- A Raspberry Pi with Raspberry Pi OS (or another Debian-based Linux distribution)
+- SSH access configured with key-based authentication
+- Your development machine (where you'll run the script from)
+- Ollama running on any accessible machine on your network
 
 ### Deployment Steps
 
-1.  **Clone the Repository on your Pi:**
-    ```bash
-    git clone https://github.com/saintpopeye/ollama-ui.git
-    cd ollama-ui
-    ```
+The deployment script can be run from your development machine and will:
+- Build the application locally
+- Transfer files to your Raspberry Pi via SSH
+- Install/upgrade Node.js to the required version
+- Set up the app as a systemd service
+- Configure the app to connect to your Ollama instance
 
-2.  **Run the Deployment Script:**
-    The script automates everything: installing Ollama, configuring CORS, installing the correct Node.js version, building the app, and setting up an Nginx web server.
+#### 1. Set up SSH Key Authentication (if not already done)
 
-    Make the script executable:
-    ```bash
-    chmod +x deploy_rpi.sh
-    ```
+From your development machine:
+```bash
+ssh-copy-id pi5@pi5  # Replace with your Pi's username and hostname
+```
 
-    Run the script with `sudo`:
-    ```bash
-    sudo ./deploy_rpi.sh
-    ```
+#### 2. Ensure Ollama is Running and Accessible
 
-3.  **Access the Application:**
-    Once the script finishes, it will display the IP address of your Raspberry Pi. You can access **SaintPopeye Connect** from any device on the same network by navigating to `http://<YOUR_PI_IP_ADDRESS>` in your web browser.
+On the machine running Ollama, configure it to accept network connections:
+
+```bash
+# Set environment variables before starting Ollama
+export OLLAMA_ORIGINS='*'
+export OLLAMA_HOST=0.0.0.0:11434
+
+# For permanent setup on Linux with systemd:
+sudo systemctl edit ollama.service
+```
+
+Add these lines:
+```ini
+[Service]
+Environment="OLLAMA_ORIGINS=*"
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+```
+
+Then restart:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+```
+
+#### 3. Run the Deployment Script
+
+From your development machine, in the project directory:
+
+```bash
+# Make the script executable (first time only)
+chmod +x deploy_rpi.sh
+
+# Basic usage (Ollama on localhost of the Pi)
+./deploy_rpi.sh pi5@pi5
+
+# Specify custom port
+./deploy_rpi.sh pi5@pi5 3000
+
+# Specify remote Ollama host (e.g., running on another machine)
+./deploy_rpi.sh pi5@pi5 3000 http://192.168.1.100:11434
+```
+
+**Usage:**
+```
+./deploy_rpi.sh [user@hostname] [port] [ollama_host] [use_ssl]
+```
+
+**Parameters:**
+- `user@hostname`: SSH connection string to your Raspberry Pi (default: `pi@raspberrypi.local`)
+- `port`: Port for the web app (default: `3000`)
+- `ollama_host`: URL of your Ollama instance (default: `http://localhost:11434`)
+- `use_ssl`: Enable HTTPS with self-signed certificate (default: `false`, set to `true` to enable)
+
+**Example Scenarios:**
+
+```bash
+# Ollama running on same Pi
+./deploy_rpi.sh pi5@192.168.1.50 3000 http://localhost:11434
+
+# Ollama running on different machine
+./deploy_rpi.sh pi5@192.168.1.50 3000 http://192.168.1.100:11434
+
+# Ollama running on your main PC
+./deploy_rpi.sh pi5@raspberrypi.local 8080 http://192.168.1.5:11434
+
+# With HTTPS (self-signed SSL certificate)
+./deploy_rpi.sh pi5@pi5 3000 http://192.168.1.100:11434 true
+
+# HTTPS on custom port
+./deploy_rpi.sh pi5@raspberrypi.local 8443 http://192.168.1.5:11434 true
+```
+
+#### HTTPS / SSL Certificate
+
+When you enable SSL (4th parameter = `true`), the deployment script will:
+- Generate a self-signed SSL certificate valid for 365 days
+- Configure the app to use HTTPS
+- Your browser will show a security warning (this is normal for self-signed certificates)
+- Click "Advanced" → "Proceed" to access the app
+
+**Note:** Self-signed certificates are safe for local network use but will always trigger browser warnings. For production deployments, consider using Let's Encrypt or a proper CA-signed certificate.
+
+#### 4. Access the Application
+
+Once deployment completes, the script will display the URLs where your app is accessible:
+- `http://<PI_IP>:<PORT>`
+- You can access it from any device on your network
+
+#### 5. Manage the Service
+
+The app runs as a systemd service. Useful commands:
+
+```bash
+# Check status
+ssh pi5@pi5 'sudo systemctl status saintpopeye-connect'
+
+# View logs
+ssh pi5@pi5 'sudo journalctl -u saintpopeye-connect -f'
+
+# Restart
+ssh pi5@pi5 'sudo systemctl restart saintpopeye-connect'
+
+# Stop
+ssh pi5@pi5 'sudo systemctl stop saintpopeye-connect'
+```
 
 ---
 ## Troubleshooting

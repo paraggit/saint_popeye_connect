@@ -186,7 +186,7 @@ export const DockerIcon: React.FC<{ className?: string }> = ({ className }) => (
         <path d="M22 19H2a2 2 0 0 1-2-2v-1.42a4.5 4.5 0 0 1 8.9-1.07" />
         <path d="M12.5 13.5a2.5 2.5 0 0 0 0-5" />
         <path d="M6 13.5a2.5 2.5 0 0 0 0-5" />
-    </g>
+    </svg>
 );
 
 export const DesktopIcon: React.FC<{ className?: string }> = ({ className }) => (
