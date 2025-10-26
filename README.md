@@ -18,7 +18,7 @@ A sleek and responsive web-based chatbot application that connects to a local Ol
 
 Before you begin, ensure you have the following installed:
 - [Ollama](https://ollama.com/)
-- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- **[Node.js](https://nodejs.org/) (v20+ REQUIRED)**
 - npm, yarn, or pnpm
 
 ## Getting Started (Local Development)
@@ -39,6 +39,7 @@ Navigate to the project directory and install the required dependencies:
 ```bash
 npm install
 ```
+If you get an error about an unsupported engine, your Node.js version is too old. Please see the Troubleshooting section below.
 
 ### 3. Configure Ollama for CORS (Crucial Step!)
 
@@ -142,7 +143,7 @@ You can easily deploy this application to a Raspberry Pi to act as a dedicated s
     ```
 
 2.  **Run the Deployment Script:**
-    The script automates everything: installing Ollama, configuring CORS, installing Node.js, building the app, and setting up an Nginx web server.
+    The script automates everything: installing Ollama, configuring CORS, installing the correct Node.js version, building the app, and setting up an Nginx web server.
 
     Make the script executable:
     ```bash
@@ -156,6 +157,39 @@ You can easily deploy this application to a Raspberry Pi to act as a dedicated s
 
 3.  **Access the Application:**
     Once the script finishes, it will display the IP address of your Raspberry Pi. You can access **SaintPopeye Connect** from any device on the same network by navigating to `http://<YOUR_PI_IP_ADDRESS>` in your web browser.
+
+---
+## Troubleshooting
+
+### `TypeError: crypto.hash is not a function`
+
+This error means your version of Node.js is too old for Vite, the project's build tool.
+
+**Solution:** Upgrade to Node.js v20 or newer. The recommended way to manage Node versions is using [nvm (Node Version Manager)](https://github.com/nvm-sh/nvm).
+
+1.  **Install nvm:**
+    ```bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    ```
+    *(You will need to close and reopen your terminal after installation)*
+
+2.  **Install and use Node.js v20:**
+    ```bash
+    nvm install 20
+    nvm use 20
+    ```
+
+3.  **Verify the version:**
+    ```bash
+    node -v
+    # Should output v20.x.x
+    ```
+
+4.  **Re-install dependencies and run:**
+    ```bash
+    npm install
+    npm run dev
+    ```
 
 ---
 

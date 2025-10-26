@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import { SendIcon, BotIcon, UserIcon, PaperclipIcon, XIcon, ClipboardIcon, CheckIcon } from './icons';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-// FIX: Corrected the import name from atomOneDark to atomDark.
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
@@ -36,7 +35,6 @@ const CodeBlock = ({ language, code }: { language: string, code: string }) => {
             </div>
             <SyntaxHighlighter
                 language={language}
-                // FIX: Used the corrected style name 'atomDark'.
                 style={atomDark}
                 customStyle={{ margin: 0, padding: '1rem', backgroundColor: '#1E1E1E' }}
                 codeTagProps={{ style: { fontSize: '0.875rem' } }}
@@ -61,11 +59,11 @@ const Message: React.FC<{ message: ChatMessage }> = ({ message }) => {
     return (
       <div>
         {parts.map((part, index) => {
-          const codeBlockMatch = part.match(/^```(\w*)\n([\s\S]*?)```$/);
+          const codeBlockMatch = part.match(/^```(\w*)\n?([\s\S]*?)```$/);
           if (codeBlockMatch) {
             const language = codeBlockMatch[1] || 'text';
-            const code = codeBlockMatch[2].trim();
-            return <CodeBlock key={index} language={language} code={code} />;
+            const code = codeBlockMatch[2];
+            return <CodeBlock key={index} language={language} code={code.trim()} />;
           }
           if (part.trim()) {
             return <p key={index} className="whitespace-pre-wrap">{part}</p>;
@@ -85,9 +83,9 @@ const Message: React.FC<{ message: ChatMessage }> = ({ message }) => {
       )}
       <div className={`max-w-xl p-3 md:p-4 rounded-lg shadow ${isUser ? 'bg-cyan-600 text-white' : 'bg-gray-700'}`}>
         {message.images && message.images.length > 0 && (
-            <div className="mb-2 grid gap-2 grid-cols-2">
+            <div className={`mb-2 grid gap-2 ${message.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 {message.images.map((imgData, index) => (
-                    <img key={index} src={`data:image/jpeg;base64,${imgData}`} alt={isUser ? "User upload" : "Generated image"} className="rounded-lg max-w-full max-h-64 object-contain" />
+                    <img key={index} src={`data:image/jpeg;base64,${imgData}`} alt={`${isUser ? "User upload" : "Generated image"} ${index + 1}`} className="rounded-lg max-w-full max-h-64 object-contain" />
                 ))}
             </div>
         )}
