@@ -1,0 +1,5 @@
+{
+  "name": "SaintPopeye Connect",
+  "description": "A sleek and responsive web-based chatbot application that connects to a local Ollama instance. It allows users to configure the Ollama host, list, select, switch, and pull AI models for interactive chat sessions.",
+  "requestFramePermissions": []
+}
