@@ -1,6 +1,6 @@
 // Default configuration for local development
 // This file will be overwritten during deployment with the correct Ollama host
 window.APP_CONFIG = {
-  ollamaHost: 'http://localhost:11434'
+  ollamaHost: '' // Use empty string to make requests relative to current origin (proxied by Vite)
 };
 
